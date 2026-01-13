@@ -1,0 +1,83 @@
+.header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quote-banner {
+  background: linear-gradient(135deg, #3174ad 0%, #2563a0 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.quote-text {
+  font-size: 18px;
+  font-style: italic;
+  margin: 0 0 10px 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.quote-author {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.navbar {
+  background: white;
+  padding: 15px 0;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3174ad;
+  text-decoration: none;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #3174ad;
+}
+
+.user-email {
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .quote-text {
+    font-size: 16px;
+  }
+}
