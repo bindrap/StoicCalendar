@@ -61,7 +61,21 @@ const Event = sequelize.define('Event', {
   recurringPattern: {
     type: DataTypes.JSONB,
     allowNull: true,
-    comment: 'Pattern for recurring events'
+    comment: 'Pattern for recurring events: {frequency: daily|weekly|monthly|yearly, interval: 1, daysOfWeek: [0-6], endDate: ISO8601, count: number}'
+  },
+  recurringEventId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'events',
+      key: 'id'
+    },
+    comment: 'Reference to parent recurring event (null for parent events)'
+  },
+  originalStartTime: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Original start time for recurring instances (used to identify which instance)'
   }
 }, {
   tableName: 'events',

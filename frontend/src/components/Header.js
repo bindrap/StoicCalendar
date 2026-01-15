@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { quoteService } from '../services/api';
 import './Header.css';
 
-function Header({ user, onLogout }) {
+function Header({ user, onLogout, currentView, setCurrentView }) {
   const [quote, setQuote] = useState(null);
   const navigate = useNavigate();
 
@@ -22,6 +22,15 @@ function Header({ user, onLogout }) {
     navigate('/login');
   };
 
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+    if (view === 'calendar') {
+      navigate('/calendar');
+    } else if (view === 'settings') {
+      navigate('/settings');
+    }
+  };
+
   return (
     <header className="header">
       {quote && (
@@ -33,17 +42,29 @@ function Header({ user, onLogout }) {
         </div>
       )}
 
+      <div className="title-section">
+        <div className="container">
+          <h1 className="app-title">Stoic Calendar</h1>
+        </div>
+      </div>
+
       <nav className="navbar">
         <div className="container navbar-content">
-          <Link to="/calendar" className="logo">
-            Stoic Calendar
-          </Link>
-
-          <div className="nav-menu">
-            <Link to="/calendar" className="nav-link">Calendar</Link>
-            <Link to="/settings" className="nav-link">Settings</Link>
-            <span className="user-email">{user.email}</span>
-            <button onClick={handleLogout} className="btn btn-secondary">
+          <div className="nav-buttons">
+            <button
+              onClick={() => handleViewChange('calendar')}
+              className={`nav-btn ${currentView === 'calendar' ? 'active' : ''}`}
+            >
+              Calendar
+            </button>
+            <button
+              onClick={() => handleViewChange('settings')}
+              className={`nav-btn ${currentView === 'settings' ? 'active' : ''}`}
+            >
+              Settings
+            </button>
+            <span className="user-email-mobile">{user.email}</span>
+            <button onClick={handleLogout} className="nav-btn logout-btn">
               Logout
             </button>
           </div>

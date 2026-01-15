@@ -72,10 +72,49 @@ select:disabled {
 
 @media (max-width: 768px) {
   .settings-container {
-    padding: 15px 0;
+    padding: 10px 0;
+  }
+
+  .settings-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .settings-section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .settings-section h3 {
+    font-size: 15px;
   }
 
   .card {
     padding: 15px;
+  }
+
+  .checkbox-group label {
+    font-size: 16px;
+    padding: 8px 0;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+  }
+
+  .form-group small {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-container h1 {
+    font-size: 20px;
+  }
+
+  .settings-section h2 {
+    font-size: 16px;
   }
 }

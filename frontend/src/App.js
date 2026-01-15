@@ -13,6 +13,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [currentView, setCurrentView] = useState('calendar'); // 'calendar' or 'settings'
 
   useEffect(() => {
     if (token) {
@@ -51,7 +52,7 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {user && <Header user={user} onLogout={handleLogout} />}
+        {user && <Header user={user} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />}
 
         <Routes>
           <Route
@@ -64,11 +65,11 @@ function App() {
           />
           <Route
             path="/calendar"
-            element={user ? <Calendar user={user} /> : <Navigate to="/login" />}
+            element={user ? <Calendar user={user} currentView={currentView} /> : <Navigate to="/login" />}
           />
           <Route
             path="/settings"
-            element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" />}
+            element={user ? <Settings user={user} setUser={setUser} currentView={currentView} /> : <Navigate to="/login" />}
           />
           <Route
             path="/"

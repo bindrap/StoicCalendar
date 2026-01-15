@@ -36,7 +36,12 @@ const eventService = {
   getEvent: (id) => api.get(`/events/${id}`),
   createEvent: (data) => api.post('/events', data),
   updateEvent: (id, data) => api.put(`/events/${id}`, data),
-  deleteEvent: (id) => api.delete(`/events/${id}`)
+  deleteEvent: (id) => api.delete(`/events/${id}`),
+  // Recurring event operations
+  updateRecurringSeries: (id, data) => api.put(`/events/${id}/series`, data),
+  createException: (id, data) => api.post(`/events/${id}/exception`, data),
+  deleteInstance: (id, originalStartTime) => api.delete(`/events/${id}/instance`, { data: { originalStartTime } }),
+  deleteSeries: (id) => api.delete(`/events/${id}/series`)
 };
 
 const quoteService = {

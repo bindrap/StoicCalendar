@@ -43,7 +43,7 @@ services:
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
       TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
-      FRONTEND_URL: http://localhost:3000
+      FRONTEND_URL: http://140.238.156.90:3000
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,7 +60,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      REACT_APP_API_URL: http://localhost:5000/api
+      REACT_APP_API_URL: http://140.238.156.90:5000/api
     depends_on:
       - backend
 
