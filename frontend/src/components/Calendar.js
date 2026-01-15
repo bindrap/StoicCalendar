@@ -98,10 +98,10 @@ function Calendar({ user }) {
     try {
       const calendarIdsToFetch = selectedCalendarIds.length > 0 ? selectedCalendarIds : null;
 
-      // Calculate date range for fetching recurring events (3 months before and after)
+      // Calculate date range for fetching recurring events (6 months before and 12 months after)
       const now = new Date();
-      const startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-      const endDate = new Date(now.getFullYear(), now.getMonth() + 4, 0);
+      const startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 13, 0);
 
       const response = await eventService.getEvents(
         startDate.toISOString(),
@@ -343,19 +343,14 @@ function Calendar({ user }) {
   };
 
   const toggleCalendar = (calendarId) => {
-    if (isMobile) {
-      // On mobile, only one calendar at a time (radio button behavior)
-      setSelectedCalendarIds([calendarId]);
-    } else {
-      // On desktop, multiple calendars (checkbox behavior)
-      setSelectedCalendarIds(prev => {
-        if (prev.includes(calendarId)) {
-          return prev.filter(id => id !== calendarId);
-        } else {
-          return [...prev, calendarId];
-        }
-      });
-    }
+    // Both mobile and desktop support multiple calendars (checkbox behavior)
+    setSelectedCalendarIds(prev => {
+      if (prev.includes(calendarId)) {
+        return prev.filter(id => id !== calendarId);
+      } else {
+        return [...prev, calendarId];
+      }
+    });
   };
 
   const selectAllCalendars = () => {
@@ -415,18 +410,23 @@ function Calendar({ user }) {
 
                   {showCalendarSelector && (
                     <div className="calendar-selector-dropdown">
+                      <div className="calendar-selector-header">
+                        <span className="selector-title">Select Calendars</span>
+                        <div className="selector-actions">
+                          <button onClick={selectAllCalendars} className="btn-selector-action">All</button>
+                          <button onClick={deselectAllCalendars} className="btn-selector-action">None</button>
+                        </div>
+                      </div>
+
                       {calendars.owned && calendars.owned.length > 0 && (
-                        <>
+                        <div className="calendar-group-mobile">
+                          <div className="calendar-group-title">My Calendars</div>
                           {calendars.owned.map(calendar => (
                             <label key={calendar.id} className="calendar-item-mobile">
                               <input
-                                type="radio"
-                                name="calendar"
+                                type="checkbox"
                                 checked={selectedCalendarIds.includes(calendar.id)}
-                                onChange={() => {
-                                  toggleCalendar(calendar.id);
-                                  setShowCalendarSelector(false);
-                                }}
+                                onChange={() => toggleCalendar(calendar.id)}
                               />
                               <span
                                 className="calendar-color"
@@ -435,31 +435,36 @@ function Calendar({ user }) {
                               <span className="calendar-name">{calendar.name}</span>
                             </label>
                           ))}
-                        </>
+                        </div>
                       )}
 
                       {calendars.shared && calendars.shared.length > 0 && (
-                        <>
+                        <div className="calendar-group-mobile">
+                          <div className="calendar-group-title">Shared With Me</div>
                           {calendars.shared.map(calendar => (
                             <label key={calendar.id} className="calendar-item-mobile">
                               <input
-                                type="radio"
-                                name="calendar"
+                                type="checkbox"
                                 checked={selectedCalendarIds.includes(calendar.id)}
-                                onChange={() => {
-                                  toggleCalendar(calendar.id);
-                                  setShowCalendarSelector(false);
-                                }}
+                                onChange={() => toggleCalendar(calendar.id)}
                               />
                               <span
                                 className="calendar-color"
                                 style={{ backgroundColor: calendar.color }}
                               ></span>
                               <span className="calendar-name">{calendar.name}</span>
+                              <span className="calendar-owner-mobile">({calendar.owner?.email})</span>
                             </label>
                           ))}
-                        </>
+                        </div>
                       )}
+
+                      <button
+                        className="btn-close-selector"
+                        onClick={() => setShowCalendarSelector(false)}
+                      >
+                        Done
+                      </button>
                     </div>
                   )}
                 </div>
@@ -482,6 +487,8 @@ function Calendar({ user }) {
                 defaultView={isMobile ? 'week' : 'month'}
                 resizable
                 draggableAccessor={() => true}
+                min={new Date(1970, 1, 1, 6, 0, 0)}
+                max={new Date(1970, 1, 1, 23, 0, 0)}
               />
             </div>
 

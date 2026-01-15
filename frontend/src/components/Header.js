@@ -5,6 +5,7 @@ import './Header.css';
 
 function Header({ user, onLogout, currentView, setCurrentView }) {
   const [quote, setQuote] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,6 +16,19 @@ function Header({ user, onLogout, currentView, setCurrentView }) {
       .catch(error => {
         console.error('Failed to fetch quote:', error);
       });
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleLogout = () => {
@@ -32,7 +46,7 @@ function Header({ user, onLogout, currentView, setCurrentView }) {
   };
 
   return (
-    <header className="header">
+    <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       {quote && (
         <div className="quote-banner">
           <blockquote className="quote-text">

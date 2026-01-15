@@ -10,11 +10,12 @@ A full-stack calendar application that helps you track events across all devices
 - **Multi-Calendar Support**: Create and manage multiple calendars with different colors
 - **Calendar Sharing**: Share calendars with other users for collaboration
 - **Multi-Device Sync**: Access your calendar from any device via the web
-- **Mobile Optimized**: Full-width responsive design for seamless mobile experience
+- **Mobile Optimized**: Fully responsive design with smart sticky header, touch-optimized controls, and multi-select calendar filtering
 - **Smart Reminders**: Get notified via email or SMS before events
 - **Daily Stoic Quotes**: Start each day with wisdom from Marcus Aurelius, Seneca, and Epictetus
 - **Customizable Settings**: Configure notification preferences and reminder times
 - **Multiple Views**: Month, week, work week (Monday-Friday), day, and agenda views
+- **Limited Hour Display**: Shows only 6 AM to 11 PM for focused scheduling
 - **Docker Support**: Easy deployment with Docker and Docker Compose
 
 ## Tech Stack
@@ -308,11 +309,21 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **Mobile Selector**: On mobile, easily switch between calendars with a dropdown
 
 ### Mobile Experience
-- **Full-Width Design**: Calendar takes up the entire screen width on mobile devices
-- **Touch Optimized**: All interactions are touch-friendly with appropriate button sizes
-- **Responsive Views**: Automatically shows week and day views on mobile for better usability
-- **Mobile Calendar Selector**: Clean dropdown interface for switching between calendars
-- **Sticky Header**: Header stays visible while scrolling for quick access to navigation
+- **Optimized Layout**: Calendar takes up the entire screen with minimal padding for maximum viewing area
+- **Smart Sticky Header**: Header automatically shrinks when scrolling down to save screen space
+  - Quote, title, and navigation buttons compress smoothly
+  - Returns to full size when scrolling back up
+- **Touch Optimized**: All interactions are touch-friendly with 44px+ button sizes
+- **Responsive Views**: Automatically defaults to week and day views on mobile for better usability
+- **Limited Hour Range**: Calendar displays only 6 AM to 11 PM to focus on active hours
+- **Multi-Select Calendar Dropdown**: Choose which calendars to display
+  - Checkbox interface for selecting multiple calendars
+  - "All" and "None" quick action buttons
+  - Visual indicators show selected calendars with highlighted borders
+  - Grouped by "My Calendars" and "Shared With Me"
+  - Large touch targets for easy interaction
+- **Smooth Scrolling**: Enhanced touch scrolling with momentum for natural feel
+- **Visual Feedback**: Active states on all buttons and events for responsive feel
 
 ### Notification System
 - Background job runs every minute to check for upcoming events
