@@ -287,6 +287,8 @@ router.put('/:id/series',
   [
     body('title').optional().notEmpty().trim(),
     body('description').optional().trim(),
+    body('startTime').optional().isISO8601(),
+    body('endTime').optional().isISO8601(),
     body('reminderTime').optional().isInt({ min: 0 }),
     body('color').optional(),
     body('isImportant').optional().isBoolean(),
@@ -303,30 +305,101 @@ router.put('/:id/series',
       const event = await Event.findOne({
         where: {
           id: req.params.id,
-          userId: req.userId,
-          isRecurring: true
+          userId: req.userId
         }
       });
 
       if (!event) {
-        return res.status(404).json({ error: 'Recurring event not found' });
+        return res.status(404).json({ error: 'Event not found' });
       }
 
-      const { title, description, reminderTime, color, isImportant, calendarId, recurringPattern } = req.body;
+      const { title, description, startTime, endTime, reminderTime, color, isImportant, calendarId, recurringPattern } = req.body;
 
-      await event.update({
-        ...(title && { title }),
-        ...(description !== undefined && { description }),
-        ...(reminderTime !== undefined && { reminderTime }),
-        ...(color && { color }),
-        ...(isImportant !== undefined && { isImportant }),
-        ...(calendarId !== undefined && { calendarId }),
-        ...(recurringPattern && { recurringPattern })
+      // Handle true recurring events (with isRecurring = true)
+      if (event.isRecurring) {
+        await event.update({
+          ...(title && { title }),
+          ...(description !== undefined && { description }),
+          ...(reminderTime !== undefined && { reminderTime }),
+          ...(color && { color }),
+          ...(isImportant !== undefined && { isImportant }),
+          ...(calendarId !== undefined && { calendarId }),
+          ...(recurringPattern && { recurringPattern })
+        });
+
+        return res.json({
+          message: 'Recurring event series updated successfully',
+          event
+        });
+      }
+
+      // Handle bulk-created events (like Rain's schedule) - update all matching events
+      // Find all events with the same title and calendarId
+      const matchingEvents = await Event.findAll({
+        where: {
+          userId: req.userId,
+          title: event.title,
+          calendarId: event.calendarId,
+          isRecurring: false
+        }
       });
 
+      console.log(`Found ${matchingEvents.length} events matching title "${event.title}" in calendar ${event.calendarId}`);
+
+      // Calculate time difference if startTime/endTime are provided
+      let timeDiff = null;
+      if (startTime) {
+        const originalStart = new Date(event.startTime);
+        const newStart = new Date(startTime);
+        timeDiff = newStart.getTime() - originalStart.getTime();
+        console.log(`Time difference: ${timeDiff}ms (${timeDiff / (1000 * 60 * 60)} hours)`);
+      }
+
+      // Calculate duration difference if endTime is provided
+      let durationDiff = null;
+      if (endTime && startTime) {
+        const originalDuration = new Date(event.endTime).getTime() - new Date(event.startTime).getTime();
+        const newDuration = new Date(endTime).getTime() - new Date(startTime).getTime();
+        durationDiff = newDuration - originalDuration;
+        console.log(`Duration difference: ${durationDiff}ms`);
+      }
+
+      // Update all matching events
+      const updatePromises = matchingEvents.map(async (matchingEvent) => {
+        const updateData = {};
+
+        if (title) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (reminderTime !== undefined) updateData.reminderTime = reminderTime;
+        if (color) updateData.color = color;
+        if (isImportant !== undefined) updateData.isImportant = isImportant;
+        if (calendarId !== undefined) updateData.calendarId = calendarId;
+
+        // Apply time shift if provided
+        if (timeDiff !== null) {
+          const oldStart = new Date(matchingEvent.startTime);
+          const newStart = new Date(oldStart.getTime() + timeDiff);
+          updateData.startTime = newStart.toISOString();
+
+          // Also shift end time by the same amount, plus duration diff if provided
+          const oldEnd = new Date(matchingEvent.endTime);
+          const newEnd = new Date(oldEnd.getTime() + timeDiff + (durationDiff || 0));
+          updateData.endTime = newEnd.toISOString();
+        } else if (endTime) {
+          // If only endTime is provided without startTime, just update duration
+          const oldDuration = new Date(matchingEvent.endTime).getTime() - new Date(matchingEvent.startTime).getTime();
+          const newEndTime = new Date(new Date(matchingEvent.startTime).getTime() + (new Date(endTime).getTime() - new Date(startTime || event.startTime).getTime()));
+          updateData.endTime = newEndTime.toISOString();
+        }
+
+        return matchingEvent.update(updateData);
+      });
+
+      await Promise.all(updatePromises);
+
       res.json({
-        message: 'Recurring event series updated successfully',
-        event
+        message: `Updated ${matchingEvents.length} events in the series`,
+        count: matchingEvents.length
       });
     } catch (error) {
       console.error('Update recurring series error:', error);
@@ -453,27 +526,47 @@ router.delete('/:id/series', async (req, res) => {
     const event = await Event.findOne({
       where: {
         id: req.params.id,
-        userId: req.userId,
-        isRecurring: true
-      }
-    });
-
-    if (!event) {
-      return res.status(404).json({ error: 'Recurring event not found' });
-    }
-
-    // Delete all exceptions first
-    await Event.destroy({
-      where: {
-        recurringEventId: req.params.id,
         userId: req.userId
       }
     });
 
-    // Delete the parent event
-    await event.destroy();
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
 
-    res.json({ message: 'Recurring event series deleted successfully' });
+    // Handle true recurring events (with isRecurring = true)
+    if (event.isRecurring) {
+      // Delete all exceptions first
+      await Event.destroy({
+        where: {
+          recurringEventId: req.params.id,
+          userId: req.userId
+        }
+      });
+
+      // Delete the parent event
+      await event.destroy();
+
+      return res.json({ message: 'Recurring event series deleted successfully' });
+    }
+
+    // Handle bulk-created events (like Rain's schedule) - delete all matching events
+    // Find all events with the same title and calendarId
+    const deletedCount = await Event.destroy({
+      where: {
+        userId: req.userId,
+        title: event.title,
+        calendarId: event.calendarId,
+        isRecurring: false
+      }
+    });
+
+    console.log(`Deleted ${deletedCount} events matching title "${event.title}" in calendar ${event.calendarId}`);
+
+    res.json({
+      message: `Deleted ${deletedCount} events in the series`,
+      count: deletedCount
+    });
   } catch (error) {
     console.error('Delete series error:', error);
     res.status(500).json({ error: 'Server error deleting recurring event series' });

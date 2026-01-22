@@ -82,7 +82,7 @@ const seedCalendars = async () => {
       // Seed Rain's semester schedule
       // Monday: 10-12 PNR 217, 3-5 PNR 220
       // Tuesday: 8-10 PNR 218, 2-5 SSC 109G
-      // Wednesday: 10-11 PNR 218, 11-12 PNR 225, 3-5 PNR 221
+      // Wednesday: 11-12 PNR 218, 12-1 PNR 225, 3-5 PNR 221
 
       const startDate = new Date();
       // Start from this week's Monday
@@ -131,8 +131,8 @@ const seedCalendars = async () => {
       await createRecurringEvent(1, 19, 0, 22, 0, 'SSC 109G', 'Nursing course SSC 109G'); // 2 PM - 5 PM local
 
       // Wednesday (dayOfWeek = 2)
-      await createRecurringEvent(2, 15, 0, 16, 0, 'PNR 218', 'Nursing course PNR 218'); // 10 AM - 11 AM local
-      await createRecurringEvent(2, 16, 0, 17, 0, 'PNR 225', 'Nursing course PNR 225'); // 11 AM - 12 PM local
+      await createRecurringEvent(2, 16, 0, 17, 0, 'PNR 218', 'Nursing course PNR 218'); // 11 AM - 12 PM local
+      await createRecurringEvent(2, 17, 0, 18, 0, 'PNR 225', 'Nursing course PNR 225'); // 12 PM - 1 PM local
       await createRecurringEvent(2, 20, 0, 22, 0, 'PNR 221', 'Nursing course PNR 221'); // 3 PM - 5 PM local
 
       // Log specific dates for verification

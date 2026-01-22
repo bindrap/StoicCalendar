@@ -358,7 +358,7 @@ function EventModal({ event, mode, onSave, onDelete, onClose, calendars, default
             </div>
           )}
 
-          {mode === 'edit' && (event?.isRecurring || event?.isRecurringInstance) && (
+          {mode === 'edit' && (event?.isRecurring || event?.isRecurringInstance || event?.isPartOfSeries) && (
             <div className="form-group">
               <label>Edit</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -165,10 +165,10 @@ StoicCalendar/
 - `POST /api/events` - Create new event (supports recurring events)
 - `PUT /api/events/:id` - Update single event
 - `DELETE /api/events/:id` - Delete single event
-- `PUT /api/events/:id/series` - Update entire recurring event series
+- `PUT /api/events/:id/series` - Update entire recurring event series (supports time changes and bulk series)
 - `POST /api/events/:id/exception` - Create exception (edit single instance of recurring event)
 - `DELETE /api/events/:id/instance` - Delete single instance of recurring event
-- `DELETE /api/events/:id/series` - Delete entire recurring event series
+- `DELETE /api/events/:id/series` - Delete entire recurring event series (supports bulk series)
 
 ### Calendar Endpoints
 
@@ -226,9 +226,11 @@ When you click on a recurring event, you have two options:
    - Useful for one-time schedule changes
 
 2. **"All events in the series"**: Updates the entire series
-   - Changes apply to all future occurrences
-   - Past occurrences remain unchanged
-   - Useful for permanent schedule changes
+   - Changes apply to all instances of the event
+   - Includes time changes, title changes, description, color, and calendar assignment
+   - Works for both pattern-based recurring events and bulk-created event series
+   - Time shifts are applied proportionally to maintain relative scheduling
+   - Useful for permanent schedule changes (e.g., changing a class time for the entire semester)
 
 ### Deleting Recurring Events
 
@@ -295,7 +297,9 @@ TWILIO_PHONE_NUMBER=+1234567890
 - **End Options**: Set an end date or specify a number of occurrences
 - **Edit Options**: When editing recurring events, choose to:
   - Edit only the selected instance
-  - Edit all events in the series
+  - Edit all events in the series (including time changes)
+- **Bulk Series Support**: Automatically detects event series with matching titles (e.g., "PNR 218") and allows bulk editing
+- **Smart Time Shifts**: When changing time for a series, the shift is applied proportionally to all instances
 - **Delete Options**: Delete a single occurrence or the entire series
 - **Drag & Drop**: Moving a recurring event instance automatically creates an exception
 - **Perfect for**: Work schedules, school timetables, regular meetings, and habits

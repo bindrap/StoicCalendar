@@ -156,7 +156,17 @@ function Calendar({ user }) {
   };
 
   const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
+    // Check if this event has duplicates (same title and calendar) to determine if it's part of a series
+    const hasDuplicates = events.filter(e =>
+      e.title === event.title &&
+      e.calendarId === event.calendarId &&
+      e.id !== event.id
+    ).length > 0;
+
+    setSelectedEvent({
+      ...event,
+      isPartOfSeries: hasDuplicates || event.isRecurring || event.isRecurringInstance
+    });
     setModalMode('edit');
     setShowModal(true);
   };
@@ -188,12 +198,14 @@ function Calendar({ user }) {
             color: eventData.color,
             isImportant: eventData.isImportant
           });
-        } else if ((eventData.isRecurringInstance || selectedEvent.isRecurring) && eventData.editScope === 'all') {
+        } else if ((eventData.isRecurringInstance || selectedEvent.isRecurring || selectedEvent.isPartOfSeries) && eventData.editScope === 'all') {
           // Update the entire series
           const parentId = eventData.recurringEventId || selectedEvent.id;
           await eventService.updateRecurringSeries(parentId, {
             title: eventData.title,
             description: eventData.description,
+            startTime: eventData.startTime,
+            endTime: eventData.endTime,
             reminderTime: eventData.reminderTime,
             color: eventData.color,
             isImportant: eventData.isImportant,
@@ -216,8 +228,8 @@ function Calendar({ user }) {
   };
 
   const handleDeleteEvent = async (editScope, isRecurringInstance, recurringEventId, originalStartTime) => {
-    // Determine if this is a recurring event
-    const isRecurring = selectedEvent.isRecurring || isRecurringInstance;
+    // Determine if this is a recurring event or part of a series
+    const isRecurring = selectedEvent.isRecurring || isRecurringInstance || selectedEvent.isPartOfSeries;
 
     let confirmMessage = 'Are you sure you want to delete this event?';
     if (isRecurring && editScope === 'all') {
@@ -235,7 +247,7 @@ function Calendar({ user }) {
         // Delete single instance of recurring event
         const parentId = recurringEventId || selectedEvent.id;
         await eventService.deleteInstance(parentId, originalStartTime);
-      } else if ((isRecurringInstance || selectedEvent.isRecurring) && editScope === 'all') {
+      } else if ((isRecurringInstance || selectedEvent.isRecurring || selectedEvent.isPartOfSeries) && editScope === 'all') {
         // Delete entire series
         const parentId = recurringEventId || selectedEvent.id;
         await eventService.deleteSeries(parentId);
